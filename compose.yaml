@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    init: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - dependencies:/app/node_modules
+      - build:/app/.next
+
+volumes:
+  dependencies:
+  build:
