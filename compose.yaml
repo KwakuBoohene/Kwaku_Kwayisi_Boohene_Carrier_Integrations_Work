@@ -11,9 +11,7 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-      - dependencies:/app/node_modules
       - build:/app/.next
 
 volumes:
-  dependencies:
   build:

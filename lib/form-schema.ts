@@ -1,26 +1,37 @@
-interface BaseField {
-  key: string;
-  label: string;
-  required: boolean;
-  showIf?: { field: string; includes: string };
-}
+import { z } from "zod";
 
-export type FormField = BaseField & (
-  | { type: "text"; pattern?: string }
-  | { type: "email" | "tel" }
-  | { type: "date"; format: string; validation?: { minAge?: number } }
-  | { type: "select"; options: string[] | number[] }
-  | { type: "multiselect"; options: string[] }
-  | { type: "number"; min?: number }
-  | { type: "boolean" }
-);
+const baseField = {
+  key: z.string(),
+  label: z.string(),
+  required: z.boolean(),
+  showIf: z.object({ field: z.string(), includes: z.string() }).optional(),
+};
 
-export interface CarrierForm {
-  carrier: string;
-  product: string;
-  fields: FormField[];
-}
+const formFieldSchema = z.discriminatedUnion("type", [
+  z.object({ ...baseField, type: z.literal("text"), pattern: z.string().optional() }),
+  z.object({ ...baseField, type: z.literal("email") }),
+  z.object({ ...baseField, type: z.literal("tel") }),
+  z.object({
+    ...baseField, type: z.literal("date"), format: z.string(),
+    validation: z.object({ minAge: z.number().optional() }).optional(),
+  }),
+  z.object({
+    ...baseField, type: z.literal("select"),
+    options: z.union([z.array(z.string()), z.array(z.number())]),
+  }),
+  z.object({ ...baseField, type: z.literal("multiselect"), options: z.array(z.string()) }),
+  z.object({ ...baseField, type: z.literal("number"), min: z.number().optional() }),
+  z.object({ ...baseField, type: z.literal("boolean") }),
+]);
 
+export const carrierFormSchema = z.object({
+  carrier: z.string(),
+  product: z.string(),
+  fields: z.array(formFieldSchema),
+});
+
+export type FormField = z.infer<typeof formFieldSchema>;
+export type CarrierForm = z.infer<typeof carrierFormSchema>;
 export type AnswerValue = string | number | boolean | string[];
 export type FormAnswers = Partial<Record<string, AnswerValue>>;
 
