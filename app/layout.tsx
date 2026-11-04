@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Harbor Assurance | Renters insurance",
-  description: "A practice carrier integration for renters insurance.",
+  title: "Renters quote portal",
+  description: "Create a temporary profile and prepare a renters insurance request.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

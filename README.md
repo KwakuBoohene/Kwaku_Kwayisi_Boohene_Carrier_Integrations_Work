@@ -1,6 +1,6 @@
 # Harbor carrier integration
 
-Practice exercise using Next.js, TypeScript, Tailwind CSS, and Zod. Tickets 1–3 provide the development foundation, Harbor adapter and eligibility checks, and a form rendered from Harbor's JSON. Valid submissions display a prepared request; nothing is sent to a carrier.
+Practice exercise using Next.js, TypeScript, Tailwind CSS, and Zod. Tickets 1–3 provide the development foundation, Harbor adapter and eligibility checks, and a Profile → Provider → Quote portal with a form rendered from Harbor's JSON. Valid submissions display a prepared request; nothing is sent to a carrier.
 
 ## Run locally
 
@@ -66,18 +66,20 @@ Vitest runs once and exits. Ten unit tests cover sample/custom profile validatio
 - `data/`: the two sample profiles and unmodified Harbor definition.
 - `plans/`: tickets; `plans/specs/` contains their specifications and verification records.
 
-## Try the form
+## Try the portal
 
-- Start by creating a temporary standard customer profile. Nothing is saved; refresh discards it. Enter any valid US state and birth date to test Harbor eligibility.
-- Or skip setup with Use sample A — Maya Torres / Use sample B — Sam Lee. Neither sample is selected by default, and their supplied data is unchanged.
-- After choosing a profile, known answers appear in Your profile. Enter a phone number, choose coverage, complete the pet selection, and provide five-year claims. Sprinklers are optional.
-- Dog is preselected but does not describe every pet. Add any other pets or select These are all my pets. None is exclusive; dog breed is shown only when Dog is selected.
-- Edit prefilled details allows corrections without changing the sample fixtures. Eligibility follows those effective answers.
-- Prepare quote request validates all applicable answers and displays exact Harbor JSON. Editing any answer clears the previous result.
-- Sam immediately shows age and unsupported-state reasons; follow-up questions are not required while ineligible.
-- Create another profile opens an empty form. Creating or loading a profile resets quote answers, errors, edit state, and request output, including reloading the same sample. Browser-local calendar dates are used for eligibility and refreshed on submission.
+1. **Profile:** choose Create a temporary profile (the primary action) or Use a sample profile. Creation uses the standard profile fields; the sample option offers unchanged Maya/Sam fixtures. Nothing is saved, and refresh returns to the portal start.
+2. **Provider:** review the chosen customer's name and explicitly choose Harbor Assurance — Renters insurance. Harbor is the only provider available. Profile creation/selection does not skip this step.
+3. **Quote:** Harbor checks eligibility, prefills known answers, and asks for missing details. Prepare quote request validates answers and displays exact Harbor JSON without sending it anywhere.
 
-The form uses a local React reducer to coordinate answer changes, submission attempts, edit mode, and request output. Prefills, errors, and eligibility are derived. Profile/session selection uses a small reducer to reset quote state; profile creation uses native form inputs and local validation feedback. No global state or form library is needed.
+- Back navigation retains the chosen profile. Returning to Harbor with that same profile also retains its answers and prepared output; hidden quote controls are unavailable outside the Quote step.
+- Change profile returns to profile options. Continue with this profile resumes the same customer; selecting or creating a replacement starts a clean quote session.
+- Dog is preselected only when known, but the complete pet question still needs an explicit answer. Add other pets or confirm These are all my pets. None is exclusive, and breed appears only with Dog.
+- Coverage is a customer selection; five-year claims is a separate question from the profile's three-year count. Sprinklers are optional.
+- Edit prefilled details allows corrections without changing sample fixtures. Eligibility follows those effective answers. Editing an answer clears previous request output.
+- Sam's age and unsupported-state reasons appear immediately after choosing Harbor, not on the provider screen. Missing questions are not required while ineligible.
+
+Local reducers coordinate portal navigation and quote transitions. Prefills, errors, and eligibility are derived; profile creation uses native inputs and local feedback. No state-management library, routing framework, backend, or persistence was added.
 
 ## Adapter and eligibility
 

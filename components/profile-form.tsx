@@ -96,6 +96,6 @@ export function ProfileForm({ onCreate }: { onCreate: (profile: CustomerProfile)
       {Object.keys(errors).length > 0 && <p className="font-medium text-red-800">Check the highlighted profile fields.</p>}
     </div>
     <ProfileFields errors={errors} />
-    <button type="submit" className="rounded-md bg-teal-800 px-4 py-2 font-medium text-white focus-visible:outline-teal-700">Use this profile</button>
+    <button type="submit" className="rounded-md bg-teal-800 px-4 py-2 font-medium text-white focus-visible:outline-teal-700">Continue to providers</button>
   </form>;
 }
