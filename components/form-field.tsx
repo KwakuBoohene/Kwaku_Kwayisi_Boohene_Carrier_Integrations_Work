@@ -7,13 +7,18 @@ interface FieldProps {
   field: FieldDefinition;
   value: AnswerValue | undefined;
   error?: string;
+  hint?: string;
   onChange: (value: AnswerValue | undefined) => void;
+}
+
+function describedBy(field: FieldDefinition, error?: string, hint?: string) {
+  return [hint && `${field.key}-hint`, error && `${field.key}-error`].filter(Boolean).join(" ") || undefined;
 }
 
 const controlStyle =
   "mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 focus:border-teal-700 focus:outline-2 focus:outline-teal-700";
 
-function SelectionControl({ field, value, error, onChange }: FieldProps) {
+function SelectionControl({ field, value, error, hint, onChange }: FieldProps) {
   if (field.type !== "select" && field.type !== "boolean") return null;
   const options = field.type === "select" ? field.options : [true, false];
   const selected = value === undefined ? "" : String(value);
@@ -27,7 +32,7 @@ function SelectionControl({ field, value, error, onChange }: FieldProps) {
       value={selected}
       required={field.required}
       aria-invalid={!!error}
-      aria-describedby={error ? `${field.key}-error` : undefined}
+      aria-describedby={describedBy(field, error, hint)}
       onChange={(event) =>
         onChange(
           options.find((option) => String(option) === event.target.value),
@@ -49,14 +54,14 @@ function SelectionControl({ field, value, error, onChange }: FieldProps) {
   );
 }
 
-function Checkboxes({ field, value, error, onChange }: FieldProps) {
+function Checkboxes({ field, value, error, hint, onChange }: FieldProps) {
   if (field.type !== "multiselect") return null;
   const selected = Array.isArray(value) ? value : [];
   return (
     <fieldset
       id={field.key}
       aria-invalid={!!error}
-      aria-describedby={error ? `${field.key}-error` : undefined}
+      aria-describedby={describedBy(field, error, hint)}
     >
       <legend className="font-medium">
         {field.label}
@@ -87,13 +92,14 @@ function Checkboxes({ field, value, error, onChange }: FieldProps) {
   );
 }
 
-function InputControl({ field, value, error, onChange }: FieldProps) {
+function InputControl({ field, value, error, hint, onChange }: FieldProps) {
   if (field.type === "select" || field.type === "boolean") {
     return (
       <SelectionControl
         field={field}
         value={value}
         error={error}
+        hint={hint}
         onChange={onChange}
       />
     );
@@ -113,7 +119,7 @@ function InputControl({ field, value, error, onChange }: FieldProps) {
       min={field.type === "number" ? field.min : undefined}
       step={field.type === "number" ? "any" : undefined}
       aria-invalid={!!error}
-      aria-describedby={error ? `${field.key}-error` : undefined}
+      aria-describedby={describedBy(field, error, hint)}
       onChange={(event) =>
         onChange(
           field.type === "number"
@@ -128,7 +134,7 @@ function InputControl({ field, value, error, onChange }: FieldProps) {
 }
 
 export function FormField(props: FieldProps) {
-  const { field, error } = props;
+  const { field, error, hint } = props;
   return (
     <div>
       {field.type === "multiselect" ? (
@@ -142,6 +148,7 @@ export function FormField(props: FieldProps) {
           <InputControl {...props} />
         </>
       )}
+      {hint && <p id={`${field.key}-hint`} className="mt-2 text-sm text-slate-600">{hint}</p>}
       {error && (
         <p id={`${field.key}-error`} className="mt-2 text-sm text-red-800">
           {error}

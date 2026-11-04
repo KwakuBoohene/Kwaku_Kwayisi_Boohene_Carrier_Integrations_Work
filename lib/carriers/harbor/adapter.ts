@@ -31,6 +31,7 @@ function profileAnswers(profile: CustomerProfile): FormAnswers {
     contact_email: profile.email,
     residence_state: stateName(profile.state),
     postal_code: profile.zip,
+    claims_last_5_years: profile.claims_last_3_years,
   };
   if (profile.has_dog) {
     answers.pets = ["Dog"];
@@ -86,6 +87,11 @@ export function harborRequestAdaptor(
     customerAnswers,
   );
   const fieldErrors: Record<string, string> = {};
+  const claims = answers.claims_last_5_years;
+  if (typeof claims === "number" && claims < profile.claims_last_3_years) {
+    fieldErrors.claims_last_5_years =
+      `The five-year total must include at least ${profile.claims_last_3_years} claims already recorded in your profile.`;
+  }
   const valid = validateHarborAnswers(answers, missingFields, fieldErrors);
   const eligibilityReasons = collectEligibilityReasons(answers, referenceDate);
   if (!valid || eligibilityReasons.length) {

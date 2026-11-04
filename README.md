@@ -75,7 +75,7 @@ Vitest runs once and exits. Ten unit tests cover sample/custom profile validatio
 - Back navigation retains the chosen profile. Returning to Harbor with that same profile also retains its answers and prepared output; hidden quote controls are unavailable outside the Quote step.
 - Change profile returns to profile options. Continue with this profile resumes the same customer; selecting or creating a replacement starts a clean quote session.
 - Dog is preselected only when known, but the complete pet question still needs an explicit answer. Add other pets or confirm These are all my pets. None is exclusive, and breed appears only with Dog.
-- Coverage is a customer selection; five-year claims is a separate question from the profile's three-year count. Sprinklers are optional.
+- Coverage is a customer selection. Five-year claims starts from the known three-year count and stays editable; increase it for older claims within five years. Sprinklers are optional.
 - Edit prefilled details allows corrections without changing sample fixtures. Eligibility follows those effective answers. Editing an answer clears previous request output.
 - Sam's age and unsupported-state reasons appear immediately after choosing Harbor, not on the provider screen. Missing questions are not required while ineligible.
 
@@ -95,7 +95,7 @@ Assumptions and mapping decisions:
 - Customers select coverage. Property value is not automatically converted to requested coverage.
 - Dog ownership provides only a partial pet answer; customers explicitly answer the full pet question. No dog does not imply no pets.
 - Known breeds map to exact Harbor options or Other; hidden breed answers are omitted.
-- Customers supply five-year claims; three-year counts are never substituted or cross-checked.
+- Five-year claims is prefilled from the known three-year count as an editable starting value, without an extra confirmation. Customers can increase it; totals below the known count are rejected. This assumes both periods use the same claims definition/reference date.
 - Optional sprinklers remain absent until answered; false and zero remain meaningful values.
 - Eligibility uses calendar birthdays; February 29 birthdays advance on March 1 in non-leap years.
 - Final requests are flat objects using only Harbor field keys, with no carrier/product envelope.

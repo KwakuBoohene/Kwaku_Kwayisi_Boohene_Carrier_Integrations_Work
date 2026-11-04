@@ -31,6 +31,7 @@ export function useQuoteForm(profile: CustomerProfile) {
     harborForm.fields
       .filter(
         (field) =>
+          field.key !== "claims_last_5_years" &&
           initial.answers[field.key] !== undefined &&
           !initial.missingFields.includes(field.key),
       )
@@ -83,7 +84,11 @@ export function useQuoteForm(profile: CustomerProfile) {
     answers: prepared.answers,
     missingFields: prepared.missingFields,
     knownFields: fields.filter((field) => knownKeys.has(field.key)),
-    questions: fields.filter((field) => !knownKeys.has(field.key)),
+    questions: fields.filter((field) => !knownKeys.has(field.key)).map(field =>
+      field.key === "claims_last_5_years" && field.type === "number"
+        ? { ...field, min: Math.max(field.min ?? 0, profile.claims_last_3_years) }
+        : field),
+    claimsHint: `Starts with your known 3-year count (${profile.claims_last_3_years}). Increase it if you had more claims in the past 5 years.`,
     reasons,
     eligible,
     errors,

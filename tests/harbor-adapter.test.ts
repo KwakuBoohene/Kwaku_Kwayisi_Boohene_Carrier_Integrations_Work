@@ -56,6 +56,7 @@ describe("Harbor adapter", () => {
       contact_email: "maya@example.com",
       residence_state: "Oregon",
       postal_code: "97205",
+      claims_last_5_years: 0,
       pets: ["Dog"],
       dog_breed: "Labrador",
     });
@@ -65,6 +66,7 @@ describe("Harbor adapter", () => {
       contact_email: "sam@example.com",
       residence_state: "Nevada",
       postal_code: "89501",
+      claims_last_5_years: 1,
     });
     const answers = prepareHarborAnswers(
       sampleProfiles.A,
@@ -80,7 +82,6 @@ describe("Harbor adapter", () => {
       "phone",
       "contents_coverage",
       "pets",
-      "claims_last_5_years",
       "building_has_sprinklers",
     ];
     expect(prepareHarborAnswers(sampleProfiles.A).missingFields).toEqual(
@@ -93,11 +94,24 @@ describe("Harbor adapter", () => {
     for (const field of [
       "phone",
       "contents_coverage",
-      "claims_last_5_years",
       "building_has_sprinklers",
     ]) {
       expect(known).not.toHaveProperty(field);
     }
+    expect(known.claims_last_5_years).toBe(0);
+    const profile = { ...sampleProfiles.A, claims_last_3_years: 2 };
+    const { claims_last_5_years: _claims, ...otherAnswers } = completeAnswers;
+    const defaulted = harborRequestAdaptor(profile, otherAnswers, referenceDate);
+    expect(defaulted.ok).toBe(true);
+    if (defaulted.ok) expect(defaulted.request.claims_last_5_years).toBe(2);
+    const increased = harborRequestAdaptor(profile, { ...otherAnswers, claims_last_5_years: 4 }, referenceDate);
+    expect(increased.ok).toBe(true);
+    if (increased.ok) expect(increased.request.claims_last_5_years).toBe(4);
+    const lower = harborRequestAdaptor(profile, { ...otherAnswers, claims_last_5_years: 1 }, referenceDate);
+    expect(lower.ok).toBe(false);
+    expect(lower).not.toHaveProperty("request");
+    if (!lower.ok) expect(lower.fieldErrors.claims_last_5_years).toContain("at least 2");
+    expectFailure({ ...completeAnswers, claims_last_5_years: undefined }, "claims_last_5_years");
     expectFailure({}, "phone");
     const { pets: _pets, ...withoutPetAnswer } = completeAnswers;
     expectFailure(withoutPetAnswer, "pets");

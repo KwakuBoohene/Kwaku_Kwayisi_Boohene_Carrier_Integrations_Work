@@ -43,6 +43,7 @@ function ProfileReview({ form }: { form: FormState }) {
               field={field}
               value={form.answers[field.key]}
               error={form.errors[field.key]}
+              hint={field.key === "claims_last_5_years" ? form.claimsHint : undefined}
               onChange={(value) => form.update(field.key, value)}
             />
           ) : (
@@ -80,6 +81,7 @@ function Questions({ form }: { form: FormState }) {
               field={field}
               value={form.answers[field.key]}
               error={form.errors[field.key]}
+              hint={field.key === "claims_last_5_years" ? form.claimsHint : undefined}
               onChange={(value) => form.update(field.key, value)}
             />
             {field.key === "pets" && incompletePets && (
