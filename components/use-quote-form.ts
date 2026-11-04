@@ -32,6 +32,7 @@ export function useQuoteForm(profile: CustomerProfile) {
       .filter(
         (field) =>
           field.key !== "claims_last_5_years" &&
+          field.key !== "pets" &&
           initial.answers[field.key] !== undefined &&
           !initial.missingFields.includes(field.key),
       )

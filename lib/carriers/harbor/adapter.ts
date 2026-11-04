@@ -68,11 +68,7 @@ export function prepareHarborAnswers(
     }
     if (!field.required && isMissing(answers[field.key]))
       delete answers[field.key];
-    if (
-      isMissing(answers[field.key]) ||
-      (field.key === "pets" && !Object.hasOwn(customerAnswers, "pets"))
-    )
-      missingFields.push(field.key);
+    if (isMissing(answers[field.key])) missingFields.push(field.key);
   }
   return { answers, missingFields };
 }

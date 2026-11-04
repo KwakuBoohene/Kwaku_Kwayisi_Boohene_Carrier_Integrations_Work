@@ -61,11 +61,6 @@ function ProfileReview({ form }: { form: FormState }) {
 }
 
 function Questions({ form }: { form: FormState }) {
-  const pets = form.answers.pets;
-  const incompletePets =
-    form.missingFields.includes("pets") &&
-    Array.isArray(pets) &&
-    pets.length > 0;
   return (
     <section
       aria-labelledby="questions-heading"
@@ -76,30 +71,14 @@ function Questions({ form }: { form: FormState }) {
       </h2>
       <div className="mt-5 space-y-6">
         {form.questions.map((field) => (
-          <div key={field.key}>
-            <FormField
-              field={field}
-              value={form.answers[field.key]}
-              error={form.errors[field.key]}
-              hint={field.key === "claims_last_5_years" ? form.claimsHint : undefined}
-              onChange={(value) => form.update(field.key, value)}
-            />
-            {field.key === "pets" && incompletePets && (
-              <div className="mt-3 text-sm">
-                <p className="text-slate-600">
-                  We know about your dog. Add any other pets, or confirm this
-                  list.
-                </p>
-                <button
-                  type="button"
-                  className="mt-2 font-medium text-teal-800 underline underline-offset-4"
-                  onClick={() => form.update("pets", pets)}
-                >
-                  These are all my pets
-                </button>
-              </div>
-            )}
-          </div>
+          <FormField
+            key={field.key}
+            field={field}
+            value={form.answers[field.key]}
+            error={form.errors[field.key]}
+            hint={field.key === "claims_last_5_years" ? form.claimsHint : undefined}
+            onChange={(value) => form.update(field.key, value)}
+          />
         ))}
       </div>
     </section>

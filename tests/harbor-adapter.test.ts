@@ -77,19 +77,18 @@ describe("Harbor adapter", () => {
     expect(sampleProfiles).toEqual(original);
   });
 
-  it("asks for unavailable and incomplete information instead of guessing", () => {
+  it("asks for unavailable information and accepts editable profile defaults", () => {
     const missing = [
       "phone",
       "contents_coverage",
-      "pets",
       "building_has_sprinklers",
     ];
     expect(prepareHarborAnswers(sampleProfiles.A).missingFields).toEqual(
       missing,
     );
-    expect(prepareHarborAnswers(sampleProfiles.B).missingFields).toEqual(
-      missing,
-    );
+    expect(prepareHarborAnswers(sampleProfiles.B).missingFields).toEqual([
+      "phone", "contents_coverage", "pets", "building_has_sprinklers",
+    ]);
     const known = prepareHarborAnswers(sampleProfiles.A).answers;
     for (const field of [
       "phone",
@@ -114,12 +113,20 @@ describe("Harbor adapter", () => {
     expectFailure({ ...completeAnswers, claims_last_5_years: undefined }, "claims_last_5_years");
     expectFailure({}, "phone");
     const { pets: _pets, ...withoutPetAnswer } = completeAnswers;
-    expectFailure(withoutPetAnswer, "pets");
+    const prefilledPets = harborRequestAdaptor(sampleProfiles.A, withoutPetAnswer, referenceDate);
+    expect(prefilledPets.ok).toBe(true);
+    if (prefilledPets.ok) {
+      expect(prefilledPets.request.pets).toEqual(["Dog"]);
+      expect(prefilledPets.request.dog_breed).toBe("Labrador");
+    }
+    const clearedPets = harborRequestAdaptor(sampleProfiles.A, { ...completeAnswers, pets: undefined }, referenceDate);
+    expect(clearedPets.ok).toBe(false);
+    if (!clearedPets.ok) expect(clearedPets.fieldErrors).toHaveProperty("pets");
     expectFailure({ ...completeAnswers, pets: [] }, "pets");
   });
 
-  it("handles partial pets, conditional breeds, and explicit breed normalization", () => {
-    expect(prepareHarborAnswers(sampleProfiles.A).missingFields).toContain(
+  it("handles prefilled pets, conditional breeds, and explicit breed normalization", () => {
+    expect(prepareHarborAnswers(sampleProfiles.A).missingFields).not.toContain(
       "pets",
     );
     expect(

@@ -50,7 +50,6 @@ export type CarrierForm = z.infer<typeof carrierFormSchema>;
 export type AnswerValue = string | number | boolean | string[];
 export type FormAnswers = Partial<Record<string, AnswerValue>>;
 
-// A prefilled pet answer can be useful without being complete.
 export interface PreparedAnswers {
   answers: FormAnswers;
   missingFields: string[];

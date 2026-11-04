@@ -41,7 +41,7 @@ Internal Back actions retain the selected profile and same-profile quote answers
 | Residence/ZIP | Translate the state code to its full name; retain ZIP strings and leading zeroes. |
 | Phone | Ask; the standard profile has no phone number. Harbor provides no additional phone pattern. |
 | Coverage | Ask for an allowed numeric amount. Property value does not determine requested coverage; no automatic rounding. |
-| Pets | Dog ownership is partial information. Add other pets or explicitly confirm an unchanged preselected Dog. No dog does not imply None; None is exclusive. |
+| Pets | Prefill Dog when the profile records dog ownership, without extra confirmation. Keep the selection editable so customers can add other pets. No dog does not imply None; None is exclusive. |
 | Dog breed | Normalize known breeds to Harbor options; use Other for an unlisted known breed. Ask if unknown and Dog is selected; omit when hidden. |
 | Five-year claims | Prefill the known three-year count as an editable starting value, without extra confirmation. Increase it for older claims within five years; reject totals below the known count. This assumes the same claims definition/reference date, not that older claims are known to be absent. Clearing it leaves a required blank. |
 | Sprinklers | Optional, with no default. Omit unanswered values; preserve explicit false and numeric zero. |
@@ -58,6 +58,12 @@ Zod parses the standard profile and carrier definition and generates field valid
 - `lib/carriers/harbor/`: explicit mapping, eligibility, pet rules, and typed request serialization. `harborRequestAdaptor(profile, answers, referenceDate)` returns either a request or field errors/eligibility reasons; `prepareHarborAnswers` exposes prefills and missing questions.
 - `data/`: original Harbor definition and both unchanged sample profiles. `tests/`: ten unit cases covering mapping, profiles, claims defaults, conditions, invalid values, and date boundaries.
 
-For 50 carriers, reuse the renderer and schema/field rules, while adding reviewed mappings, eligibility, request formatting/types, and contract fixtures per carrier. A small provider/adapter registry would connect these integrations to provider selection; the current portal intentionally has only Harbor. Version definitions and test representative profiles against expected payloads/rejections to catch changed keys, options, or rules. New field types or conditional constructs need explicit schema/renderer extensions. Similar field names alone cannot establish a semantic mapping.
+For 50 carriers, I would build an LLM-powered tool which helps in adapter creation. Uploading a carrier's JSON form would automatically start a workflow that generates a draft adapter. The tool would supply the LLM with our standard customer profile, shared form and validation code, approved adapters, and any uploaded carrier documentation. It would generate the mappings and conversions, identify missing answers, and flag unclear requirements for review.
 
-With more time, add browser regression coverage for navigation/conditional inputs, stronger definition checks for duplicate keys and invalid dependencies, and broader accessibility/responsive checks. Introduce a registry and versioned fixtures when adding a second carrier, rather than implementing that infrastructure speculatively now.
+The workflow would also generate sample customers with different ages, states, pets, claims, and missing details, then run the adapter and its tests in an isolated environment. Results would show whether it produces the right carrier format and catches invalid or ineligible applications. A reviewer would check the proposed mappings and expected results against the carrier's requirements, because the LLM could make the same mistake in both the adapter and its tests. Failed checks and reviewer feedback would guide another generation and test cycle.
+
+After approval, the adapter would run as normal code. Uploading an updated carrier form would trigger the same workflow and rerun existing tests before the update is approved.
+
+## With more time
+
+I would build a small version of this tool and try it with a second carrier whose fields and rules differ from Harbor's. I would measure the time from JSON upload to an approved adapter, how many corrections it needs, and which mistakes the tests catch, then compare that with writing the adapter manually. That would show whether automated onboarding actually saves time while keeping the mappings correct.
