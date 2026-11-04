@@ -55,12 +55,12 @@ npm test
 docker compose run --rm app npm test
 ```
 
-Vitest runs once and exits. Ten unit tests cover profile mapping, incomplete answers, conditional pets, request serialization, invalid answers, both sample eligibility outcomes, calendar age boundaries, shared field rules, pet selection, and optional booleans.
+Vitest runs once and exits. Ten unit tests cover sample/custom profile validation and mapping, incomplete answers, conditional pets, request serialization, invalid answers, both sample eligibility outcomes, calendar age boundaries, shared field rules, pet selection, and optional booleans.
 
 ## Structure
 
 - `app/`: Next.js page and Tailwind stylesheet.
-- `components/`: JSON-driven controls, profile review, form state, and eligibility display.
+- `components/`: temporary-profile creation, JSON-driven quote controls, profile review, form state, and eligibility display.
 - `lib/`: standard types, shared field/date rules, and Harbor adapter/eligibility modules.
 - `tests/`: ten domain and shared-rule unit tests.
 - `data/`: the two sample profiles and unmodified Harbor definition.
@@ -68,14 +68,16 @@ Vitest runs once and exits. Ten unit tests cover profile mapping, incomplete ans
 
 ## Try the form
 
-- Maya starts with known details in Your profile. Enter a phone number, choose coverage, complete the pet selection, and provide five-year claims. Sprinklers are optional.
+- Start by creating a temporary standard customer profile. Nothing is saved; refresh discards it. Enter any valid US state and birth date to test Harbor eligibility.
+- Or skip setup with Use sample A — Maya Torres / Use sample B — Sam Lee. Neither sample is selected by default, and their supplied data is unchanged.
+- After choosing a profile, known answers appear in Your profile. Enter a phone number, choose coverage, complete the pet selection, and provide five-year claims. Sprinklers are optional.
 - Dog is preselected but does not describe every pet. Add any other pets or select These are all my pets. None is exclusive; dog breed is shown only when Dog is selected.
 - Edit prefilled details allows corrections without changing the sample fixtures. Eligibility follows those effective answers.
 - Prepare quote request validates all applicable answers and displays exact Harbor JSON. Editing any answer clears the previous result.
 - Sam immediately shows age and unsupported-state reasons; follow-up questions are not required while ineligible.
-- Switching profiles resets answers, errors, edit state, and request output. Browser-local calendar dates are used for eligibility and refreshed on submission.
+- Create another profile opens an empty form. Creating or loading a profile resets quote answers, errors, edit state, and request output, including reloading the same sample. Browser-local calendar dates are used for eligibility and refreshed on submission.
 
-The form uses a local React reducer to coordinate answer changes, submission attempts, edit mode, and request output. Prefills, errors, and eligibility are derived. The independent sample selector uses useState; no global state library is needed.
+The form uses a local React reducer to coordinate answer changes, submission attempts, edit mode, and request output. Prefills, errors, and eligibility are derived. Profile/session selection uses a small reducer to reset quote state; profile creation uses native form inputs and local validation feedback. No global state or form library is needed.
 
 ## Adapter and eligibility
 

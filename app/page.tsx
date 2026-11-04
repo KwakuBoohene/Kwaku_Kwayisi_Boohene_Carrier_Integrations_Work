@@ -8,8 +8,7 @@ export default function Home() {
       </p>
       <h1 className="mt-3 text-3xl font-bold">Renters insurance</h1>
       <p className="mt-3 text-slate-600">
-        We’ve filled in what your profile answers. Complete the remaining
-        details below.
+        Create a temporary customer profile or try a sample to see how Harbor’s quote form is prefilled.
       </p>
       <QuoteForm />
     </main>

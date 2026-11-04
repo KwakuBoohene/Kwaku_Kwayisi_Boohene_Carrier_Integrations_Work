@@ -1,4 +1,4 @@
-const stateNames: Record<string, string> = {
+export const stateNames: Record<string, string> = {
   AL: "Alabama",
   AK: "Alaska",
   AZ: "Arizona",

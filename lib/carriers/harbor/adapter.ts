@@ -11,7 +11,7 @@ import {
   validateHarborAnswers,
   type HarborQuoteRequest,
 } from "./request";
-import { stateName } from "./states";
+import { stateName } from "@/lib/us-states";
 
 export type { HarborQuoteRequest } from "./request";
 export type HarborRequestResult =

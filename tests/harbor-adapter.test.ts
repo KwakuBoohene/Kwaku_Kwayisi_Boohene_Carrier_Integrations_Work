@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { customerProfileSchema } from "@/lib/profile";
 import { sampleProfiles } from "@/data/profiles";
 import type { FormAnswers } from "@/lib/form-schema";
 import {
@@ -37,6 +38,17 @@ function expectFailure(answers: FormAnswers, field: string) {
 
 describe("Harbor adapter", () => {
   it("maps known fields for both profiles without mutating their values", () => {
+    const custom = customerProfileSchema.parse({
+      first_name: "Alex", last_name: "Mensah", date_of_birth: "1990-06-15",
+      email: "alex@example.com", state: "ca", zip: "90210", personal_property_value: 18000,
+      has_dog: false, dog_breed: null, claims_last_3_years: 0,
+    });
+    expect(prepareHarborAnswers(custom).answers).toMatchObject({
+      applicant_full_name: "Alex Mensah", residence_state: "California", postal_code: "90210",
+    });
+    expect(customerProfileSchema.safeParse({ ...custom, first_name: " " }).success).toBe(false);
+    expect(customerProfileSchema.safeParse({ ...custom, claims_last_3_years: -1 }).success).toBe(false);
+    expect(customerProfileSchema.safeParse({ ...custom, date_of_birth: "2000-02-30" }).success).toBe(false);
     const original = structuredClone(sampleProfiles);
     expect(prepareHarborAnswers(sampleProfiles.A).answers).toEqual({
       applicant_full_name: "Maya Torres",
