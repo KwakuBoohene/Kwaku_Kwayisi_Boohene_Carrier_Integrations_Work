@@ -1,105 +1,84 @@
 # Harbor carrier integration
 
-Practice exercise using Next.js, TypeScript, Tailwind CSS, and Zod. Tickets 1–3 provide the development foundation, Harbor adapter and eligibility checks, and a Profile → Provider → Quote portal with a form rendered from Harbor's JSON. Valid submissions display a prepared request; nothing is sent to a carrier.
+A renters-insurance quote portal built with Next.js, TypeScript, Tailwind CSS, and Zod. The portal walks through **Profile → Provider → Quote**: create a temporary customer profile or choose a sample, select Harbor Assurance, and complete its JSON-driven form. A valid result displays Harbor's request payload; no quote is priced or sent externally.
 
 ## Run locally
 
-Use Node 24.22.2 or a newer Node 24 patch. Docker and a Node version manager are optional for reviewers.
+Use **Node 24.22.2 or a newer Node 24 patch**. Reviewers do not need Docker, a version manager, or application environment variables.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Stop development with Ctrl+C.
-
-For production mode:
+Open [localhost:3000](http://localhost:3000). Stop development with Ctrl+C before production mode:
 
 ```bash
+npm test
 npm run build
 npm run start
 ```
 
-`start` needs an existing production build. No application environment variables are required.
+Tests run once and exit. `start` requires a completed build; Ctrl+C stops either server.
 
 ## Develop in Docker
 
-The author's workflow requires Docker Engine and Docker Compose, with no host Node installation. The image pins Node 24.22.2.
-
-The default UID/GID is 1000/1000. No `.env` file is needed. If your user IDs differ, run `export APP_UID="$(id -u)" APP_GID="$(id -g)"` in your terminal before running Compose. These settings apply only to Docker.
+The author's Ubuntu VM workflow uses Docker Engine and Docker Compose with a pinned Node 24.22.2 image, without host Node/npm.
 
 ```bash
 docker compose run --build --rm app npm ci
 docker compose up
 ```
 
-Open http://localhost:3000 in the Ubuntu VM browser. Source changes update the development page. Access from the physical host depends on VM networking.
-
-Stop development before building production output because both use the same build volume:
+Open [localhost:3000](http://localhost:3000) inside the VM. Source changes update the page. Run tests in another terminal, then stop development before production checks:
 
 ```bash
-docker compose down
+docker compose run --rm app npm test
+docker compose stop app
 docker compose run --rm app npm run build
 docker compose run --rm --service-ports app npm run start
+# After stopping the server with Ctrl+C:
+docker compose down
 ```
 
-Source and node_modules are shared with the Ubuntu VM through the project bind mount. Dependencies are installed by Docker as your user, so host VS Code can resolve imports and types without host Node. `.next` stays in a named volume; routine `docker compose down` preserves it. Do not reuse Linux node_modules on another operating system; reinstall with npm ci there.
-
-If VS Code still shows stale missing-module or JSX errors after installation, run **TypeScript: Restart TS Server** from its Command Palette. There is no ESLint configuration in this repository; these dependency-related messages are TypeScript diagnostics.
-
-## Tests
-
-```bash
-npm test
-# Or inside Docker:
-docker compose run --rm app npm test
-```
-
-Vitest runs once and exits. Ten unit tests cover sample/custom profile validation and mapping, incomplete answers, conditional pets, request serialization, invalid answers, both sample eligibility outcomes, calendar age boundaries, shared field rules, pet selection, and optional booleans.
-
-## Structure
-
-- `app/`: Next.js page and Tailwind stylesheet.
-- `components/`: temporary-profile creation, JSON-driven quote controls, profile review, form state, and eligibility display.
-- `lib/`: standard types, shared field/date rules, and Harbor adapter/eligibility modules.
-- `tests/`: ten domain and shared-rule unit tests.
-- `data/`: the two sample profiles and unmodified Harbor definition.
-- `plans/`: tickets; `plans/specs/` contains their specifications and verification records.
+UID/GID default to 1000/1000. If yours differ, run `export APP_UID="$(id -u)" APP_GID="$(id -g)"` before building/running Compose. No `.env` file is needed. Source and `node_modules` are shared with Ubuntu so VS Code can resolve types; Node/npm still run inside Docker. `.next` uses a named volume, preserved by ordinary shutdown. Reinstall dependencies when changing operating systems. For stale editor diagnostics after installation, use **TypeScript: Restart TS Server**.
 
 ## Try the portal
 
-1. **Profile:** choose Create a temporary profile (the primary action) or Use a sample profile. Creation uses the standard profile fields; the sample option offers unchanged Maya/Sam fixtures. Nothing is saved, and refresh returns to the portal start.
-2. **Provider:** review the chosen customer's name and explicitly choose Harbor Assurance — Renters insurance. Harbor is the only provider available. Profile creation/selection does not skip this step.
-3. **Quote:** Harbor checks eligibility, prefills known answers, and asks for missing details. Prepare quote request validates answers and displays exact Harbor JSON without sending it anywhere.
+1. **Profile:** create test details or choose Maya/Sam through Use a sample profile. Standard-profile validation accepts valid US states and ages independently of Harbor eligibility.
+2. **Provider:** review the selected customer and explicitly choose Harbor Assurance, the only available provider.
+3. **Quote:** review prefills, complete missing answers, and select Prepare quote request. Ineligible customers see all applicable reasons here before completing unnecessary questions.
 
-- Back navigation retains the chosen profile. Returning to Harbor with that same profile also retains its answers and prepared output; hidden quote controls are unavailable outside the Quote step.
-- Change profile returns to profile options. Continue with this profile resumes the same customer; selecting or creating a replacement starts a clean quote session.
-- Dog is preselected only when known, but the complete pet question still needs an explicit answer. Add other pets or confirm These are all my pets. None is exclusive, and breed appears only with Dog.
-- Coverage is a customer selection. Five-year claims starts from the known three-year count and stays editable; increase it for older claims within five years. Sprinklers are optional.
-- Edit prefilled details allows corrections without changing sample fixtures. Eligibility follows those effective answers. Editing an answer clears previous request output.
-- Sam's age and unsupported-state reasons appear immediately after choosing Harbor, not on the provider screen. Missing questions are not required while ineligible.
+Internal Back actions retain the selected profile and same-profile quote answers/output. Change profile lets you resume that profile or replace it; selecting/reloading a profile resets its quote. Refresh discards everything in memory and returns to profile options. Unsubmitted profile-creation drafts are not retained when leaving that form.
 
-Local reducers coordinate portal navigation and quote transitions. Prefills, errors, and eligibility are derived; profile creation uses native inputs and local feedback. No state-management library, routing framework, backend, or persistence was added.
+For Maya, enter a phone, select coverage, complete the pet list, and optionally answer sprinklers. Her five-year claims starts at zero and remains editable. For Sam, choosing Harbor shows both the minimum-age and Nevada failures, using the current date. Edit prefilled details supports corrections without mutating either sample fixture. Changing any answer clears previously prepared output.
 
-## Adapter and eligibility
+## Mapping decisions and assumptions
 
-Zod parses the carrier definition and infers its TypeScript types. Field validation is generated from Harbor's JSON metadata. Validated answers are narrowed to the Harbor request type once, then a serializer formats the birth date without revalidating them. Semantic mapping, partial pet knowledge, and eligibility remain explicit domain logic. No numeric or boolean coercion is applied.
+| Harbor information | Behavior |
+| --- | --- |
+| Legal name | Join trimmed first/last names; assume those profile names are the legal name. |
+| Birth date | Keep YYYY-MM-DD in profile/form state; serialize MM/DD/YYYY without timezone conversion. |
+| Residence/ZIP | Translate the state code to its full name; retain ZIP strings and leading zeroes. |
+| Phone | Ask; the standard profile has no phone number. Harbor provides no additional phone pattern. |
+| Coverage | Ask for an allowed numeric amount. Property value does not determine requested coverage; no automatic rounding. |
+| Pets | Dog ownership is partial information. Add other pets or explicitly confirm an unchanged preselected Dog. No dog does not imply None; None is exclusive. |
+| Dog breed | Normalize known breeds to Harbor options; use Other for an unlisted known breed. Ask if unknown and Dog is selected; omit when hidden. |
+| Five-year claims | Prefill the known three-year count as an editable starting value, without extra confirmation. Increase it for older claims within five years; reject totals below the known count. This assumes the same claims definition/reference date, not that older claims are known to be absent. Clearing it leaves a required blank. |
+| Sprinklers | Optional, with no default. Omit unanswered values; preserve explicit false and numeric zero. |
+| Request shape | Flat object of Harbor field keys; no carrier/product envelope or profile-only fields. |
 
-`prepareHarborAnswers(profile, customerAnswers?)` returns prefilled Harbor answers and visible questions still needing input. `harborRequestAdaptor(profile, customerAnswers, referenceDate)` returns either `{ ok: true, request }` or `{ ok: false, fieldErrors, eligibilityReasons }`. Reference dates are explicit YYYY-MM-DD strings, making eligibility deterministic. Form-state birth dates remain ISO; successful requests use MM/DD/YYYY.
+**Validation** checks input types, required/conditional answers, patterns, options, and numeric constraints. **Eligibility** checks Harbor's minimum age and supported states and returns every applicable reason. No breed restrictions are invented. The profile creator and input controls explicitly parse numbers/booleans; the adapter requires the correct types rather than coercing bad answers.
 
-`checkHarborEligibility({ date_of_birth, residence_state }, referenceDate)` accepts the ISO birth date and full state name. It checks the minimum age and supported states declared in Harbor's JSON. The builder rechecks effective answers after customer edits and never returns a request for invalid, incomplete, or ineligible input.
+Zod parses the standard profile and carrier definition and generates field validation from Harbor metadata. The adapter validates once; the serializer only formats the validated request. Age uses calendar birthdays, with March 1 assumed for February 29 birthdays in non-leap years. The application uses the browser's current local date and refreshes it on submission. Tests pass fixed reference dates: on 2026-11-03 Maya is eligible and Sam fails both rules; that date is not hard-coded into the UI.
 
-Assumptions and mapping decisions:
+## Code organization and 50 carriers
 
-- Profile names form the legal name; state codes map explicitly to full names.
-- Customers select coverage. Property value is not automatically converted to requested coverage.
-- Dog ownership provides only a partial pet answer; customers explicitly answer the full pet question. No dog does not imply no pets.
-- Known breeds map to exact Harbor options or Other; hidden breed answers are omitted.
-- Five-year claims is prefilled from the known three-year count as an editable starting value, without an extra confirmation. Customers can increase it; totals below the known count are rejected. This assumes both periods use the same claims definition/reference date.
-- Optional sprinklers remain absent until answered; false and zero remain meaningful values.
-- Eligibility uses calendar birthdays; February 29 birthdays advance on March 1 in non-leap years.
-- Final requests are flat objects using only Harbor field keys, with no carrier/product envelope.
+- `app/` and `components/`: portal/profile creation, reducer-driven navigation and quote state, shared field controls, and feedback.
+- `lib/profile.ts`, `lib/form-schema.ts`, `lib/form-rules.ts`: standard input schema, supported carrier definitions, and reusable validation/visibility rules. `lib/dates.ts` and `lib/us-states.ts` provide shared conversions.
+- `lib/carriers/harbor/`: explicit mapping, eligibility, pet rules, and typed request serialization. `harborRequestAdaptor(profile, answers, referenceDate)` returns either a request or field errors/eligibility reasons; `prepareHarborAnswers` exposes prefills and missing questions.
+- `data/`: original Harbor definition and both unchanged sample profiles. `tests/`: ten unit cases covering mapping, profiles, claims defaults, conditions, invalid values, and date boundaries.
 
-On 2026-11-03, Maya passes eligibility but still needs follow-up answers. Sam fails both age and residence rules, even after completing the missing answers.
+For 50 carriers, reuse the renderer and schema/field rules, while adding reviewed mappings, eligibility, request formatting/types, and contract fixtures per carrier. A small provider/adapter registry would connect these integrations to provider selection; the current portal intentionally has only Harbor. Version definitions and test representative profiles against expected payloads/rejections to catch changed keys, options, or rules. New field types or conditional constructs need explicit schema/renderer extensions. Similar field names alone cannot establish a semantic mapping.
 
-The multi-carrier explanation and final demo guidance will be expanded in Ticket 4.
+With more time, add browser regression coverage for navigation/conditional inputs, stronger definition checks for duplicate keys and invalid dependencies, and broader accessibility/responsive checks. Introduce a registry and versioned fixtures when adding a second carrier, rather than implementing that infrastructure speculatively now.
