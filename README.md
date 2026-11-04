@@ -1,10 +1,10 @@
 # Harbor carrier integration
 
-A renters-insurance quote portal built with Next.js, TypeScript, Tailwind CSS, and Zod. The portal walks through **Profile → Provider → Quote**: create a temporary customer profile or choose a sample, select Harbor Assurance, and complete its JSON-driven form. A valid result displays Harbor's request payload; no quote is priced or sent externally.
+A renters-insurance quote portal built with Next.js, TypeScript, Tailwind CSS, and Zod. The portal walks through **Profile → Provider → Quote**: create a temporary customer profile or choose a sample, select Harbor Assurance, and complete its JSON-driven form. A valid result displays Harbor's request payload.
 
 ## Run locally
 
-Use **Node 24.22.2 or a newer Node 24 patch**. Reviewers do not need Docker, a version manager, or application environment variables.
+Use **Node 24.22.2 or a newer Node 24 patch**.
 
 ```bash
 npm ci
@@ -21,37 +21,16 @@ npm run start
 
 Tests run once and exit. `start` requires a completed build; Ctrl+C stops either server.
 
-## Develop in Docker
-
-The author's Ubuntu VM workflow uses Docker Engine and Docker Compose with a pinned Node 24.22.2 image, without host Node/npm.
-
-```bash
-docker compose run --build --rm app npm ci
-docker compose up
-```
-
-Open [localhost:3000](http://localhost:3000) inside the VM. Source changes update the page. Run tests in another terminal, then stop development before production checks:
-
-```bash
-docker compose run --rm app npm test
-docker compose stop app
-docker compose run --rm app npm run build
-docker compose run --rm --service-ports app npm run start
-# After stopping the server with Ctrl+C:
-docker compose down
-```
-
-UID/GID default to 1000/1000. If yours differ, run `export APP_UID="$(id -u)" APP_GID="$(id -g)"` before building/running Compose. No `.env` file is needed. Source and `node_modules` are shared with Ubuntu so VS Code can resolve types; Node/npm still run inside Docker. `.next` uses a named volume, preserved by ordinary shutdown. Reinstall dependencies when changing operating systems. For stale editor diagnostics after installation, use **TypeScript: Restart TS Server**.
 
 ## Try the portal
 
-1. **Profile:** create test details or choose Maya/Sam through Use a sample profile. Standard-profile validation accepts valid US states and ages independently of Harbor eligibility.
-2. **Provider:** review the selected customer and explicitly choose Harbor Assurance, the only available provider.
+1. **Profile:** create test details or choose Maya/Sam through Use a sample profile. 
+2. **Provider:** review the selected customer and explicitly choose Harbor Assurance
 3. **Quote:** review prefills, complete missing answers, and select Prepare quote request. Ineligible customers see all applicable reasons here before completing unnecessary questions.
 
 Internal Back actions retain the selected profile and same-profile quote answers/output. Change profile lets you resume that profile or replace it; selecting/reloading a profile resets its quote. Refresh discards everything in memory and returns to profile options. Unsubmitted profile-creation drafts are not retained when leaving that form.
 
-For Maya, enter a phone, select coverage, complete the pet list, and optionally answer sprinklers. Her five-year claims starts at zero and remains editable. For Sam, choosing Harbor shows both the minimum-age and Nevada failures, using the current date. Edit prefilled details supports corrections without mutating either sample fixture. Changing any answer clears previously prepared output.
+
 
 ## Mapping decisions and assumptions
 
