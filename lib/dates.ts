@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-export const calendarDateSchema = z.iso.date().refine(value => !value.startsWith("0000"));
+export const calendarDateSchema = z.iso
+  .date()
+  .refine((value) => !value.startsWith("0000"));
 
 export function parseCalendarDate(value: string) {
   const result = calendarDateSchema.safeParse(value);

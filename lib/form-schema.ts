@@ -8,19 +8,34 @@ const baseField = {
 };
 
 const formFieldSchema = z.discriminatedUnion("type", [
-  z.object({ ...baseField, type: z.literal("text"), pattern: z.string().optional() }),
+  z.object({
+    ...baseField,
+    type: z.literal("text"),
+    pattern: z.string().optional(),
+  }),
   z.object({ ...baseField, type: z.literal("email") }),
   z.object({ ...baseField, type: z.literal("tel") }),
   z.object({
-    ...baseField, type: z.literal("date"), format: z.string(),
+    ...baseField,
+    type: z.literal("date"),
+    format: z.string(),
     validation: z.object({ minAge: z.number().optional() }).optional(),
   }),
   z.object({
-    ...baseField, type: z.literal("select"),
+    ...baseField,
+    type: z.literal("select"),
     options: z.union([z.array(z.string()), z.array(z.number())]),
   }),
-  z.object({ ...baseField, type: z.literal("multiselect"), options: z.array(z.string()) }),
-  z.object({ ...baseField, type: z.literal("number"), min: z.number().optional() }),
+  z.object({
+    ...baseField,
+    type: z.literal("multiselect"),
+    options: z.array(z.string()),
+  }),
+  z.object({
+    ...baseField,
+    type: z.literal("number"),
+    min: z.number().optional(),
+  }),
   z.object({ ...baseField, type: z.literal("boolean") }),
 ]);
 

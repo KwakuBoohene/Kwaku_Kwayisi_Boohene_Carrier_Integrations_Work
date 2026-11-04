@@ -2,7 +2,11 @@ import type { CustomerProfile } from "@/lib/profile";
 import type { AnswerValue, FormAnswers } from "@/lib/form-schema";
 import { isFieldVisible } from "@/lib/form-rules";
 import { harborForm } from "@/lib/carriers/harbor/definition";
-import { prepareHarborAnswers, type HarborQuoteRequest, type HarborRequestResult } from "@/lib/carriers/harbor/adapter";
+import {
+  prepareHarborAnswers,
+  type HarborQuoteRequest,
+  type HarborRequestResult,
+} from "@/lib/carriers/harbor/adapter";
 import { selectHarborPets } from "@/lib/carriers/harbor/pets";
 
 interface QuoteFormState {
@@ -15,12 +19,24 @@ interface QuoteFormState {
 
 type QuoteFormAction =
   | { type: "date_ready"; date: string }
-  | { type: "answer_changed"; profile: CustomerProfile; key: string; value: AnswerValue | undefined }
+  | {
+      type: "answer_changed";
+      profile: CustomerProfile;
+      key: string;
+      value: AnswerValue | undefined;
+    }
   | { type: "editing_changed"; editing: boolean }
-  | { type: "submitted"; date: string; result: HarborRequestResult; revealProfile: boolean };
+  | {
+      type: "submitted";
+      date: string;
+      result: HarborRequestResult;
+      revealProfile: boolean;
+    };
 
 export const initialQuoteFormState: QuoteFormState = {
-  customerAnswers: {}, editing: false, attempts: 0,
+  customerAnswers: {},
+  editing: false,
+  attempts: 0,
 };
 
 function updatedAnswers(
@@ -41,14 +57,22 @@ function updatedAnswers(
   return next;
 }
 
-export function quoteFormReducer(state: QuoteFormState, action: QuoteFormAction): QuoteFormState {
+export function quoteFormReducer(
+  state: QuoteFormState,
+  action: QuoteFormAction,
+): QuoteFormState {
   switch (action.type) {
     case "date_ready":
       return { ...state, referenceDate: action.date };
     case "answer_changed":
       return {
         ...state,
-        customerAnswers: updatedAnswers(action.profile, state.customerAnswers, action.key, action.value),
+        customerAnswers: updatedAnswers(
+          action.profile,
+          state.customerAnswers,
+          action.key,
+          action.value,
+        ),
         request: undefined,
       };
     case "editing_changed":

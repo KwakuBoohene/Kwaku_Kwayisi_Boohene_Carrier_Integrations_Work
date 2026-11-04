@@ -34,12 +34,7 @@
       "key": "residence_state",
       "label": "State of residence",
       "type": "select",
-      "options": [
-        "California",
-        "Oregon",
-        "Washington",
-        "Arizona"
-      ],
+      "options": ["California", "Oregon", "Washington", "Arizona"],
       "required": true
     },
     {
@@ -53,36 +48,21 @@
       "key": "contents_coverage",
       "label": "Contents coverage amount (USD)",
       "type": "select",
-      "options": [
-        10000,
-        25000,
-        50000,
-        75000
-      ],
+      "options": [10000, 25000, 50000, 75000],
       "required": true
     },
     {
       "key": "pets",
       "label": "Pets in the home",
       "type": "multiselect",
-      "options": [
-        "None",
-        "Dog",
-        "Cat",
-        "Other"
-      ],
+      "options": ["None", "Dog", "Cat", "Other"],
       "required": true
     },
     {
       "key": "dog_breed",
       "label": "Dog breed",
       "type": "select",
-      "options": [
-        "Labrador",
-        "Pit Bull",
-        "Rottweiler",
-        "Other"
-      ],
+      "options": ["Labrador", "Pit Bull", "Rottweiler", "Other"],
       "required": true,
       "showIf": {
         "field": "pets",

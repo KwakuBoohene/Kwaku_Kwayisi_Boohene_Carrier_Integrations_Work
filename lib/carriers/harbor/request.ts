@@ -29,7 +29,11 @@ export function validateHarborAnswers(
       fieldErrors[field.key] = `Please complete ${field.label.toLowerCase()}.`;
     }
   }
-  if (Array.isArray(answers.pets) && answers.pets.includes("None") && answers.pets.length > 1) {
+  if (
+    Array.isArray(answers.pets) &&
+    answers.pets.includes("None") &&
+    answers.pets.length > 1
+  ) {
     fieldErrors.pets = "Select None on its own or choose your pets.";
   }
   const claims = answers.claims_last_5_years;
@@ -39,7 +43,13 @@ export function validateHarborAnswers(
   return Object.keys(fieldErrors).length === 0;
 }
 
-export function serializeHarborRequest(answers: HarborQuoteRequest): HarborQuoteRequest {
+export function serializeHarborRequest(
+  answers: HarborQuoteRequest,
+): HarborQuoteRequest {
   const [year, month, day] = answers.date_of_birth.split("-");
-  return { ...answers, date_of_birth: `${month}/${day}/${year}`, pets: [...answers.pets] };
+  return {
+    ...answers,
+    date_of_birth: `${month}/${day}/${year}`,
+    pets: [...answers.pets],
+  };
 }
