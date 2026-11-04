@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleProfiles } from "@/data/profiles";
 import { checkHarborEligibility } from "@/lib/carriers/harbor/eligibility";
-import { buildHarborRequest } from "@/lib/carriers/harbor/adapter";
+import { harborRequestAdaptor } from "@/lib/carriers/harbor/adapter";
 
 const referenceDate = "2026-11-03";
 
@@ -21,7 +21,7 @@ describe("Harbor eligibility", () => {
       { code: "minimum_age", field: "date_of_birth", message: expect.stringContaining("21") },
       { code: "unsupported_state", field: "residence_state", message: expect.stringContaining("Nevada") },
     ]);
-    const request = buildHarborRequest(sampleProfiles.B, {
+    const request = harborRequestAdaptor(sampleProfiles.B, {
       phone: "775-555-0100", contents_coverage: 25000, pets: ["None"], claims_last_5_years: 1,
     }, referenceDate);
     expect(request.ok).toBe(false);

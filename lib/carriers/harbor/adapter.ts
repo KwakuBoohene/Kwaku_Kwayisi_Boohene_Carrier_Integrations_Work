@@ -51,7 +51,7 @@ export function prepareHarborAnswers(
   return { answers, missingFields };
 }
 
-export function buildHarborRequest(
+export function harborRequestAdaptor(
   profile: CustomerProfile,
   customerAnswers: FormAnswers,
   referenceDate: string,

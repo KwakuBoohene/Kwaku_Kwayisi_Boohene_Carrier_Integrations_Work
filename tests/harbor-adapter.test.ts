@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleProfiles } from "@/data/profiles";
 import type { FormAnswers } from "@/lib/form-schema";
-import { buildHarborRequest, prepareHarborAnswers } from "@/lib/carriers/harbor/adapter";
+import { harborRequestAdaptor, prepareHarborAnswers } from "@/lib/carriers/harbor/adapter";
 
 const referenceDate = "2026-11-03";
 const completeAnswers: FormAnswers = {
@@ -17,7 +17,7 @@ const expectedRequest = {
 };
 
 function expectFailure(answers: FormAnswers, field: string) {
-  const result = buildHarborRequest(sampleProfiles.A, answers, referenceDate);
+  const result = harborRequestAdaptor(sampleProfiles.A, answers, referenceDate);
   expect(result.ok).toBe(false);
   expect(result).not.toHaveProperty("request");
   if (!result.ok) expect(result.fieldErrors).toHaveProperty(field);
@@ -72,11 +72,11 @@ describe("Harbor adapter", () => {
   });
 
   it("serializes exact valid requests and rejects invalid answers or edited eligibility", () => {
-    expect(buildHarborRequest(sampleProfiles.A, completeAnswers, referenceDate)).toEqual({
+    expect(harborRequestAdaptor(sampleProfiles.A, completeAnswers, referenceDate)).toEqual({
       ok: true, request: expectedRequest,
     });
     const { building_has_sprinklers: _sprinklers, ...withoutSprinklers } = completeAnswers;
-    const noDog = buildHarborRequest(sampleProfiles.A, {
+    const noDog = harborRequestAdaptor(sampleProfiles.A, {
       ...withoutSprinklers, pets: ["None"], dog_breed: "ignored", unknown_key: "ignored",
     }, referenceDate);
     expect(noDog.ok).toBe(true);
@@ -86,7 +86,7 @@ describe("Harbor adapter", () => {
       expect(noDog.request).not.toHaveProperty("unknown_key");
       expect(noDog.request.claims_last_5_years).toBe(0);
     }
-    const emptyOptional = buildHarborRequest(sampleProfiles.A, {
+    const emptyOptional = harborRequestAdaptor(sampleProfiles.A, {
       ...completeAnswers, building_has_sprinklers: "",
     }, referenceDate);
     expect(emptyOptional.ok).toBe(true);
@@ -104,14 +104,14 @@ describe("Harbor adapter", () => {
       [{ building_has_sprinklers: "false" }, "building_has_sprinklers"],
     ];
     for (const [overrides, field] of invalidAnswers) expectFailure({ ...completeAnswers, ...overrides }, field);
-    const edited = buildHarborRequest(sampleProfiles.A, {
+    const edited = harborRequestAdaptor(sampleProfiles.A, {
       ...completeAnswers, date_of_birth: "2006-01-20", residence_state: "Nevada",
     }, referenceDate);
     expect(edited.ok).toBe(false);
     if (!edited.ok) expect(edited.eligibilityReasons.map(reason => reason.code)).toEqual([
       "minimum_age", "unsupported_state",
     ]);
-    const invalidBirth = buildHarborRequest(sampleProfiles.A, {
+    const invalidBirth = harborRequestAdaptor(sampleProfiles.A, {
       ...completeAnswers, date_of_birth: "invalid", residence_state: "Nevada",
     }, referenceDate);
     if (invalidBirth.ok) throw new Error("Invalid birth date must fail.");

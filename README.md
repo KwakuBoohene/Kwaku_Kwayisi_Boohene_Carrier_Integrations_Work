@@ -69,7 +69,7 @@ Vitest runs once and exits. Seven unit tests cover profile mapping, incomplete a
 
 Zod parses the carrier definition and infers its TypeScript types. Field validation is generated from Harbor's JSON metadata. Validated answers are narrowed to the Harbor request type once, then a serializer formats the birth date without revalidating them. Semantic mapping, partial pet knowledge, and eligibility remain explicit domain logic. No numeric or boolean coercion is applied.
 
-`prepareHarborAnswers(profile, customerAnswers?)` returns prefilled Harbor answers and visible questions still needing input. `buildHarborRequest(profile, customerAnswers, referenceDate)` returns either `{ ok: true, request }` or `{ ok: false, fieldErrors, eligibilityReasons }`. Reference dates are explicit YYYY-MM-DD strings, making eligibility deterministic. Form-state birth dates remain ISO; successful requests use MM/DD/YYYY.
+`prepareHarborAnswers(profile, customerAnswers?)` returns prefilled Harbor answers and visible questions still needing input. `harborRequestAdaptor(profile, customerAnswers, referenceDate)` returns either `{ ok: true, request }` or `{ ok: false, fieldErrors, eligibilityReasons }`. Reference dates are explicit YYYY-MM-DD strings, making eligibility deterministic. Form-state birth dates remain ISO; successful requests use MM/DD/YYYY.
 
 `checkHarborEligibility({ date_of_birth, residence_state }, referenceDate)` accepts the ISO birth date and full state name. It checks the minimum age and supported states declared in Harbor's JSON. The builder rechecks effective answers after customer edits and never returns a request for invalid, incomplete, or ineligible input.
 
