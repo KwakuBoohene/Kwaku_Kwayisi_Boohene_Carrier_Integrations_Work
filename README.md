@@ -1,6 +1,6 @@
 # Harbor carrier integration
 
-Practice exercise using Next.js, TypeScript, Tailwind CSS, and Zod. Tickets 1 and 2 provide the development foundation, profile types, carrier schema, supplied data, Harbor adapter, and eligibility checks. The page remains a shell; the dynamic quote form comes in Ticket 3.
+Practice exercise using Next.js, TypeScript, Tailwind CSS, and Zod. Tickets 1–3 provide the development foundation, Harbor adapter and eligibility checks, and a form rendered from Harbor's JSON. Valid submissions display a prepared request; nothing is sent to a carrier.
 
 ## Run locally
 
@@ -55,15 +55,27 @@ npm test
 docker compose run --rm app npm test
 ```
 
-Vitest runs once and exits. Seven unit tests cover profile mapping, incomplete answers, conditional pets, request serialization, invalid answers, both sample eligibility outcomes, and calendar age boundaries. Ticket 3 adds three shared-rule tests for a total of ten.
+Vitest runs once and exits. Ten unit tests cover profile mapping, incomplete answers, conditional pets, request serialization, invalid answers, both sample eligibility outcomes, calendar age boundaries, shared field rules, pet selection, and optional booleans.
 
 ## Structure
 
-- `app/`: minimal Next.js shell and Tailwind stylesheet.
+- `app/`: Next.js page and Tailwind stylesheet.
+- `components/`: JSON-driven controls, profile review, form state, and eligibility display.
 - `lib/`: standard types, shared field/date rules, and Harbor adapter/eligibility modules.
-- `tests/`: seven domain unit tests.
+- `tests/`: ten domain and shared-rule unit tests.
 - `data/`: the two sample profiles and unmodified Harbor definition.
 - `plans/`: tickets; `plans/specs/` contains their specifications and verification records.
+
+## Try the form
+
+- Maya starts with known details in Your profile. Enter a phone number, choose coverage, complete the pet selection, and provide five-year claims. Sprinklers are optional.
+- Dog is preselected but does not describe every pet. Add any other pets or select These are all my pets. None is exclusive; dog breed is shown only when Dog is selected.
+- Edit prefilled details allows corrections without changing the sample fixtures. Eligibility follows those effective answers.
+- Prepare quote request validates all applicable answers and displays exact Harbor JSON. Editing any answer clears the previous result.
+- Sam immediately shows age and unsupported-state reasons; follow-up questions are not required while ineligible.
+- Switching profiles resets answers, errors, edit state, and request output. Browser-local calendar dates are used for eligibility and refreshed on submission.
+
+The form uses a local React reducer to coordinate answer changes, submission attempts, edit mode, and request output. Prefills, errors, and eligibility are derived. The independent sample selector uses useState; no global state library is needed.
 
 ## Adapter and eligibility
 
